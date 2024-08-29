@@ -31,17 +31,18 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Authentication Middleware
+// Authentication
 const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization'];
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(403);
-
+  
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      next();
     });
-};
+  };  
 
 // Register User
 app.post('/register', (req, res) => {
@@ -89,15 +90,18 @@ app.post('/login', (req, res) => {
 // Get Messages
 app.get('/messages', authenticateToken, (req, res) => {
     const userId = req.user.id;
+    const contactId = req.query.contactId;
+
     db.query(
-        'SELECT * FROM messages WHERE sender_id = ? OR receiver_id = ?',
-        [userId, userId],
+        'SELECT * FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)',
+        [userId, contactId, contactId, userId],
         (err, results) => {
             if (err) throw err;
             res.json(results);
         }
     );
 });
+
 
 // Save a new message
 app.post('/messages', (req, res) => {
@@ -112,7 +116,7 @@ app.post('/messages', (req, res) => {
     );
 });
 
-// Get all users (for address book search)
+// Get all users 
 app.get('/users', (req, res) => {
     db.query('SELECT id, username, avatar FROM users', (err, results) => {
         if (err) throw err;
@@ -162,19 +166,22 @@ app.post('/upload', upload.single('file'), (req, res) => {
     res.json({ file: req.file });
 });
 
-// Socket.IO for real-time messaging
+// Real-time messaging
 io.on('connection', (socket) => {
     console.log('A user connected');
 
     socket.on('sendMessage', ({ senderId, receiverId, content }) => {
         const message = { sender_id: senderId, receiver_id: receiverId, content };
+
+        // Store message 
         db.query('INSERT INTO messages SET ?', message, (err, result) => {
             if (err) throw err;
+
             io.emit('receiveMessage', { ...message, id: result.insertId, created_at: new Date() });
         });
     });
 
-    // WebRTC signaling
+    // WebRTC 
     socket.on('offer', offer => socket.broadcast.emit('offer', offer));
     socket.on('answer', answer => socket.broadcast.emit('answer', answer));
     socket.on('ice-candidate', candidate => socket.broadcast.emit('ice-candidate', candidate));
@@ -183,6 +190,7 @@ io.on('connection', (socket) => {
         console.log('User disconnected');
     });
 });
+
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
