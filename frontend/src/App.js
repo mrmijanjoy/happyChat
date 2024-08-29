@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 import './App.css';
-import { FaPaperPlane, FaVideo, FaSearch, FaUpload, FaStar, FaUser } from 'react-icons/fa';
+import { FaPaperPlane, FaVideo, FaUpload, FaStar, FaUser } from 'react-icons/fa';
 
 // Initialize Socket.IO client
 const socket = io('http://localhost:5000');
@@ -13,11 +13,11 @@ function App() {
   const [contacts, setContacts] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
-  const [isFileUploadVisible, setIsFileUploadVisible] = useState(false);
+  const [setIsFileUploadVisible] = useState(false);
   const [file, setFile] = useState(null);
   const [videoCall, setVideoCall] = useState(false);
   const [localStream, setLocalStream] = useState(null);
-  const [remoteStream, setRemoteStream] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const videoRef = useRef(null);
 
@@ -31,7 +31,7 @@ function App() {
       headers: { 'Authorization': localStorage.getItem('token') },
     }).then((response) => setContacts(response.data));
 
-    axios.get('http://localhost:5000/favorites/1', { // Replace 1 with the actual user ID
+    axios.get('http://localhost:5000/favorites', { // Replace 1 with the actual user ID
       headers: { 'Authorization': localStorage.getItem('token') },
     }).then((response) => setFavorites(response.data));
 
@@ -83,18 +83,29 @@ function App() {
 
   const startVideoCall = async () => {
     try {
+      // Get local media stream
       const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setLocalStream(localStream);
 
+      // Set up peer connection
       const peerConnection = new RTCPeerConnection();
-      peerConnection.addStream(localStream);
 
-      peerConnection.onaddstream = (event) => {
-        setRemoteStream(event.stream);
+      // Add local tracks to the peer connection
+      localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
+      });
+
+      // Handle remote stream
+      peerConnection.ontrack = (event) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = event.streams[0];
+        }
       };
 
-      socket.emit('startCall', { localStream });
+      // Signal new call
+      socket.emit('startCall');
 
+      // Handle incoming offer
       socket.on('offer', async (offer) => {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await peerConnection.createAnswer();
@@ -102,6 +113,12 @@ function App() {
         socket.emit('answer', answer);
       });
 
+      // Handle incoming answer
+      socket.on('answer', async (answer) => {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+      });
+
+      // Handle incoming ICE candidates
       socket.on('candidate', (candidate) => {
         peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
       });
@@ -118,6 +135,10 @@ function App() {
     }
   };
 
+  const filteredContacts = contacts.filter(contact =>
+    contact.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div id="app-container">
       <div id="header">Chat Application</div>
@@ -125,7 +146,12 @@ function App() {
         <div id="sidebar">
           <h2>Contacts</h2>
           <div className="search-bar">
-            <input type="text" placeholder="Search contacts" />
+            <input
+              type="text"
+              placeholder="Search contacts"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
           <h3><FaStar /> Favorites</h3>
           <ul>
@@ -137,7 +163,7 @@ function App() {
           </ul>
           <h3><FaUser /> All Contacts</h3>
           <ul>
-            {contacts.map(contact => (
+            {filteredContacts.map(contact => (
               <li key={contact.id} onClick={() => setSelectedContact(contact)}>
                 <FaUser /> {contact.username}
               </li>
@@ -167,17 +193,17 @@ function App() {
                   placeholder="Type a message..."
                 />
                 <button onClick={sendMessage}><FaPaperPlane /></button>
-                  <div className="file-upload">
-                    <input
-                      type="file"
-                      id="file-upload-input"
-                      onChange={handleFileUpload}
-                      style={{ display: 'none' }}
-                    />
-                    <label htmlFor="file-upload-input" className="file-upload-label">
-                      <FaUpload />
-                    </label>
-                  </div>                
+                <div className="file-upload">
+                  <input
+                    type="file"
+                    id="file-upload-input"
+                    onChange={handleFileUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="file-upload-input" className="file-upload-label">
+                    <FaUpload />
+                  </label>
+                </div>
                 <button onClick={startVideoCall}><FaVideo /></button>
               </div>
             </>
