@@ -167,7 +167,6 @@ function App() {
                   placeholder="Type a message..."
                 />
                 <button onClick={sendMessage}><FaPaperPlane /></button>
-                {isFileUploadVisible && (
                   <div className="file-upload">
                     <input
                       type="file"
@@ -179,7 +178,6 @@ function App() {
                       <FaUpload />
                     </label>
                   </div>                
-                )}
                 <button onClick={startVideoCall}><FaVideo /></button>
               </div>
             </>

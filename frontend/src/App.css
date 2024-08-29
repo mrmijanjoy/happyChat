@@ -217,9 +217,9 @@ body {
 .file-upload button {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
+  padding: 10px 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 1px;
   background-color: #5865F2;
   color: #FFFFFF;
   font-size: 0.9rem;
@@ -241,17 +241,14 @@ body {
   margin-top: -10px;
   display: inline-flex;
   align-items: center;
-  padding: 12px 16px;
-  border-radius: 8px;
+  justify-content: center;
+  padding: 10px 8px;
+  border-radius: 20%;
   background-color: #5865F2;
   color: #FFFFFF;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
-}
-
-.file-upload-label svg {
-  margin-right: 8px;
 }
 
 .file-upload-label:hover {
@@ -259,6 +256,9 @@ body {
   transform: scale(1.05);
 }
 
+.file-upload-label svg {
+  margin-right: 8px;
+}
 
 /* Video Call */
 .video-call {
