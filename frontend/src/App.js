@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 import './App.css';
+import { FaPaperPlane, FaVideo, FaSearch, FaUpload, FaStar, FaUser } from 'react-icons/fa';
 
 // Initialize Socket.IO client
 const socket = io('http://localhost:5000');
@@ -123,20 +124,22 @@ function App() {
       <div id="chat-container">
         <div id="sidebar">
           <h2>Contacts</h2>
-          <input type="text" placeholder="Search contacts" />
-          <h3>Favorites</h3>
+          <div className="search-bar">
+            <input type="text" placeholder="Search contacts" />
+          </div>
+          <h3><FaStar /> Favorites</h3>
           <ul>
             {favorites.map(contact => (
               <li key={contact.id} onClick={() => setSelectedContact(contact)}>
-                {contact.username}
+                <FaUser /> {contact.username}
               </li>
             ))}
           </ul>
-          <h3>All Contacts</h3>
+          <h3><FaUser /> All Contacts</h3>
           <ul>
             {contacts.map(contact => (
               <li key={contact.id} onClick={() => setSelectedContact(contact)}>
-                {contact.username}
+                <FaUser /> {contact.username}
               </li>
             ))}
           </ul>
@@ -163,14 +166,21 @@ function App() {
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type a message..."
                 />
-                <button onClick={sendMessage}>Send</button>
-                <input type="file" onChange={handleFileUpload} />
+                <button onClick={sendMessage}><FaPaperPlane /></button>
                 {isFileUploadVisible && (
                   <div className="file-upload">
-                    <button onClick={uploadFile}>Upload File</button>
-                  </div>
+                    <input
+                      type="file"
+                      id="file-upload-input"
+                      onChange={handleFileUpload}
+                      style={{ display: 'none' }}
+                    />
+                    <label htmlFor="file-upload-input" className="file-upload-label">
+                      <FaUpload />
+                    </label>
+                  </div>                
                 )}
-                <button onClick={startVideoCall}>Start Video Call</button>
+                <button onClick={startVideoCall}><FaVideo /></button>
               </div>
             </>
           )}

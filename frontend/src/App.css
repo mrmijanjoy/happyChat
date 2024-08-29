@@ -206,11 +206,17 @@ body {
 }
 
 /* File Upload */
+/* File Upload */
 .file-upload {
   margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .file-upload button {
+  display: flex;
+  align-items: center;
   padding: 8px 16px;
   border: none;
   border-radius: 8px;
@@ -221,10 +227,38 @@ body {
   transition: background-color 0.3s, transform 0.3s;
 }
 
+.file-upload button svg {
+  margin-right: 8px;
+}
+
 .file-upload button:hover {
   background-color: #4752C4;
   transform: scale(1.05);
 }
+
+.file-upload-label {
+  margin: 0 5px;
+  margin-top: -10px;
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: #5865F2;
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.file-upload-label svg {
+  margin-right: 8px;
+}
+
+.file-upload-label:hover {
+  background-color: #4752C4;
+  transform: scale(1.05);
+}
+
 
 /* Video Call */
 .video-call {
