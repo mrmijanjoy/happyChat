@@ -131,7 +131,7 @@ function App() {
         <div id="app-container">
             <div id="header">Chat Application</div>
             <div id="chat-container">
-                <div id="sidebar">  //============================================receiver side
+                <div id="sidebar">  {/*============================================receiver side*/}
                     <h2>Contacts</h2>
                     <div className="search-bar">
                         <input
@@ -158,7 +158,7 @@ function App() {
                         ))}
                     </ul>
                 </div>
-                <div id="chat-area"> //===================================================inbox
+                <div id="chat-area"> {/*//===================================================inbox */}
                     {selectedContact && (
                         <>
                             <div id="message-list">
@@ -176,7 +176,7 @@ function App() {
                                         </div>
                                     ))}
                             </div>
-                            <div id="input-area"> //===================================================message box
+                            <div id="input-area"> {/* //===================================================message box */}
                                 <input
                                     type="text"
                                     value={message}
@@ -184,7 +184,7 @@ function App() {
                                     placeholder="Type a message..."
                                 />
                                 <button onClick={sendMessage}><FaPaperPlane /></button>
-                                <div className="file-upload"> //===========================================file upload
+                                <div className="file-upload"> {/* //===========================================file upload */}
                                     <input
                                         type="file"
                                         id="file-upload-input"
@@ -195,7 +195,7 @@ function App() {
                                         <FaUpload />
                                     </label>
                                 </div>
-                                <button onClick={startVideoCall}><FaVideo /></button> //====================video call
+                                <button onClick={startVideoCall}><FaVideo /></button> {/* //====================video call */}
                             </div>
                         </>
                     )}
